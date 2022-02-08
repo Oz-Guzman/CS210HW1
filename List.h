@@ -200,7 +200,7 @@ public:
     // Return number of elements currently in the list.
     int size() const
     {
-        return -1;
+        return listSize;
     }
 
     // Return true if the list is empty, false otherwise.
@@ -263,14 +263,22 @@ public:
     iterator insert(iterator itr, const Object& x)
     {
         //need to update the return value, just itr so it will compile
-        return itr;
+        Node* temp = itr.current;
+        listSize++;
+        return iterator(temp->prev = temp->prev->next = new Node{ std::move(x), temp->prev, temp});
     }
 
     // Erase item at itr.
     iterator remove(iterator itr)
     {
-        //need to update the return value, just itr so it will compile
-        return itr;
+        Node* temp = itr.current;
+        iterator result(temp->next);
+        temp->prev->next = temp->next;
+        temp->next->prev = temp->prev;
+        delete temp;
+        listSize--;
+
+        return result;
     }
 
     // Return the index of the node containing the matching value
@@ -281,12 +289,17 @@ public:
     }
 
 private:
+    int listSize;
     Node* head;
     Node* tail;
 
     void init()
     {
-
+        listSize = 0;
+        head = new Node;
+        tail = new Node;
+        head->next = tail;
+        tail->prev = head;
     }
 };
 
